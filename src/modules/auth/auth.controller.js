@@ -5,20 +5,34 @@ const register = async (req, res, next) => {
   const { username, email, password, confirmpassword } = req.body;
   try {
     if (!username || !email || !password || !confirmpassword) {
-      return res.status(400).json("enter all fields ");
+      return res.status(400).json({
+        message: "some fields are empty",
+        status: "failure",
+      });
     }
     if (password !== confirmpassword) {
-      return res.status(400).json("passwords doesnot match confirm password");
+      return res.status(400).json({
+        message: "Passowrd doesn`t match confirm password",
+        status: "failure",
+      });
     }
     const existingemail = await User.findOne({ email });
     if (existingemail) {
-      return res.status(409).json("email is already registered");
+      return res.status(409).json({
+        message: "email is already registered try another one ",
+        status: "failure",
+      });
     }
     const user = await User.create({ username, email, password });
     if (!user) {
-      return res.status(409).json("something went wrong user wasnt created ");
+      return res.status(409).json({
+        message: "Something went wrong user wasnt created",
+        status: "failure",
+      });
     }
-    return res.status(201).json("user created successfully");
+    return res
+      .status(201)
+      .json({ message: "user created successfully", status: "success" });
   } catch (err) {
     res.status(500).json(err.message);
   }
@@ -34,13 +48,19 @@ const login = async (req, res, next) => {
     const existingmail = await User.findOne({ email });
 
     if (!existingmail) {
-      return res.status(409).json("email doesnot exist");
+      return res.status(409).json({
+        message: "email doesn`t exist",
+        status: "failure",
+      });
     }
 
     const isMatch = await existingmail.comparePassword(password);
 
     if (!isMatch) {
-      return res.status(409).json("password is incorrect");
+      return res.status(409).json({
+        message: "wrong password",
+        status: "failure",
+      });
     }
     const token = JWT.sign(
       {
@@ -58,6 +78,7 @@ const login = async (req, res, next) => {
     return res.status(201).json({
       token: token,
       message: "user logged in succefully",
+      status: "success",
     });
   } catch (error) {
     res.json(error.message);
