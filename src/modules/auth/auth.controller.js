@@ -68,7 +68,9 @@ const login = async (req, res, next) => {
         role: existingmail.role,
         id: existingmail._id,
       },
-      process.env.PrivateKey,
+      existingmail.role === "admin"
+        ? process.env.PrivateKeyAdmin
+        : process.env.PrivateKeyUSER,
       {
         expiresIn: "1h",
       },
